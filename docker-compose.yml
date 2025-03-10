@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${PGUSERNAME}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    ports:
+      - "${PGPORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  app:
+    image: oven/bun:latest
+    environment:
+      PGHOST: db
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: bun run src/main.ts
+
+volumes:
+  postgres_data:
