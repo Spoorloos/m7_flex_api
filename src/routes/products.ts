@@ -44,7 +44,7 @@ productsRoute.post("/", zValidator("json", createProductSchema), async (c) => {
 });
 
 productsRoute.get("/:id", zValidator("param", getProductSchema), async (c) => {
-    return c.json((await sql`SELECT * FROM "products" WHERE id = ${c.req.valid("param").id}`)[0]);
+    return c.json((await sql`SELECT * FROM "products" WHERE "id" = ${c.req.valid("param").id}`)[0]);
 });
 
 export default productsRoute;
