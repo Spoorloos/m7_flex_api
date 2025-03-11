@@ -2,10 +2,9 @@ import { Hono } from "hono";
 import { sql } from "bun";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { HTTPException } from "hono/http-exception";
 
 // Schemas
-const querySchema = z.object({
+const getProductsSchema = z.object({
     filter: z.string().optional(),
     minPrice: z.coerce.number().optional(),
     maxPrice: z.coerce.number().optional(),
@@ -20,10 +19,14 @@ const createProductSchema = z.object({
     price: z.number(),
 });
 
-// Routing
-const productsRoute = new Hono({ strict: false });
+const getProductSchema = z.object({
+    id: z.coerce.number().int().min(0),
+});
 
-productsRoute.get("/", zValidator("query", querySchema), async (c) => {
+// Routing
+const productsRoute = new Hono();
+
+productsRoute.get("/", zValidator("query", getProductsSchema), async (c) => {
     const { filter, minPrice, maxPrice, order, limit } = c.req.valid("query");
 
     return c.json(await sql`
@@ -40,12 +43,8 @@ productsRoute.post("/", zValidator("json", createProductSchema), async (c) => {
     await sql`INSERT INTO "products" ${sql(c.req.valid("json"))}`;
 });
 
-productsRoute.get("/:id", async (c) => {
-    const id = Number(c.req.param("id"));
-    if (!Number.isInteger(id) || id < 0) {
-        throw new HTTPException(400, { message: "ID is negative or not an integer" });
-    }
-    return c.json((await sql`SELECT * FROM "products" WHERE id = ${id}`)[0]);
+productsRoute.get("/:id", zValidator("param", getProductSchema), async (c) => {
+    return c.json((await sql`SELECT * FROM "products" WHERE id = ${c.req.valid("param").id}`)[0]);
 });
 
 export default productsRoute;
