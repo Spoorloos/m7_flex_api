@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { productsRoute } from "./routes/products";
+import productsRoute from "./routes/products";
 
-const app = new Hono().basePath("api");
+const apiRoute = new Hono().basePath("api");
 
-app.route("/products", productsRoute);
+apiRoute.route("/products", productsRoute);
 
-export default app;
+export default apiRoute;

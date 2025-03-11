@@ -13,7 +13,7 @@ const createProductSchema = z.object({
 });
 
 // Routing
-export const productsRoute = new Hono();
+const productsRoute = new Hono({ strict: false });
 
 productsRoute.get("/", async (c) => {
     return c.json(await sql`SELECT * FROM "products"`);
@@ -25,8 +25,10 @@ productsRoute.post("/", zValidator("json", createProductSchema), async (c) => {
 
 productsRoute.get("/:id", async (c) => {
     const id = parseInt(c.req.param("id"));
-    if (Number.isNaN(id)) {
-        throw new HTTPException(400, { message: "ID is not a valid number" });
+    if (Number.isNaN(id) || id < 0) {
+        throw new HTTPException(400, { message: "ID is negative or not a number" });
     }
     return c.json(await sql`SELECT * FROM "products" WHERE id = ${id}`);
 });
+
+export default productsRoute;

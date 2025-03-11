@@ -12,7 +12,7 @@ services:
 
   app:
     image: oven/bun:latest
-    restart: unless-stopped
+    restart: always
     command: bun run src/main.ts
     working_dir: /app
     volumes:
