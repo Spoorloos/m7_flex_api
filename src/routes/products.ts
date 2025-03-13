@@ -8,7 +8,7 @@ const productsQuerySchema = z.object({
     filter: z.string().optional(),
     minPrice: z.coerce.number().nonnegative().optional(),
     maxPrice: z.coerce.number().nonnegative().optional(),
-    order: z.enum(["asc", "desc"]).optional(),
+    order: z.string().transform((val) => val.toUpperCase()).pipe(z.enum(["ASC", "DESC"])).optional(),
     limit: z.coerce.number().int().nonnegative().optional(),
 });
 
@@ -41,18 +41,23 @@ productsRoute.get("/", zValidator("query", productsQuerySchema), async (c) => {
 
 productsRoute.post("/", zValidator("json", newProductSchema), async (c) => {
     const data = c.req.valid("json");
+
     await sql`INSERT INTO "products" ${sql(data)}`;
+
     return c.body(null, 201);
 });
 
 productsRoute.get("/:id", zValidator("param", productIdSchema), async (c) => {
     const { id } = c.req.valid("param");
+
     return c.json(await sql`SELECT * FROM "products" WHERE "id" = ${id}`);
 });
 
 productsRoute.delete("/:id", zValidator("param", productIdSchema), async (c) => {
     const { id } = c.req.valid("param");
+
     await sql`DELETE FROM "products" WHERE "id" = ${id}`;
+
     return c.body(null, 204);
 });
 
@@ -64,6 +69,7 @@ productsRoute.put("/:id",
         const data = c.req.valid("json");
 
         await sql`UPDATE "products" SET ${sql(data)} WHERE "id" = ${id}`;
+
         return c.body(null, 204);
     }
 );
