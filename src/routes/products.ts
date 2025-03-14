@@ -50,7 +50,7 @@ productsRoute.post("/", zValidator("json", newProductSchema), async (c) => {
 productsRoute.get("/:id", zValidator("param", productIdSchema), async (c) => {
     const { id } = c.req.valid("param");
 
-    return c.json(await sql`SELECT * FROM "products" WHERE "id" = ${id}`);
+    return c.json((await sql`SELECT * FROM "products" WHERE "id" = ${id}`)[0]);
 });
 
 productsRoute.delete("/:id", zValidator("param", productIdSchema), async (c) => {
