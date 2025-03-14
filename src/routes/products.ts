@@ -8,7 +8,7 @@ const productsQuerySchema = z.object({
     filter: z.string().optional(),
     minPrice: z.coerce.number().nonnegative().optional(),
     maxPrice: z.coerce.number().nonnegative().optional(),
-    order: z.string().transform((val) => val.toUpperCase()).pipe(z.enum(["ASC", "DESC"])).optional(),
+    order: z.enum(["asc", "desc"]).optional(),
     limit: z.coerce.number().int().nonnegative().max(1000).default(50),
 });
 
