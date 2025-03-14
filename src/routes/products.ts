@@ -9,7 +9,7 @@ const productsQuerySchema = z.object({
     minPrice: z.coerce.number().nonnegative().optional(),
     maxPrice: z.coerce.number().nonnegative().optional(),
     order: z.string().transform((val) => val.toUpperCase()).pipe(z.enum(["ASC", "DESC"])).optional(),
-    limit: z.coerce.number().int().nonnegative().optional(),
+    limit: z.coerce.number().int().nonnegative().max(1000).default(50),
 });
 
 const newProductSchema = z.object({
@@ -35,7 +35,7 @@ productsRoute.get("/", zValidator("query", productsQuerySchema), async (c) => {
         ${minPrice !== undefined ? sql`AND "price" >= ${minPrice}` : sql``}
         ${maxPrice !== undefined ? sql`AND "price" <= ${maxPrice}` : sql``}
         ${order !== undefined ? sql`ORDER BY "date_added" ${sql.unsafe(order)}` : sql``}
-        ${limit !== undefined ? sql`LIMIT ${limit}` : sql``}
+        LIMIT ${limit}
     `);
 });
 
